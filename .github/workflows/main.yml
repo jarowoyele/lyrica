@@ -15,7 +15,7 @@ jobs:
           dotnet-version: 3.1
       
       - name: Publish the project
-        run: dotnet publish Lyrica/Lyrica/Lyrica.csproj -c Release -o release --nologo
+        run: dotnet publish LyricaV3/LyricaV3/LyricaV3.csproj -c Release -o release --nologo
         
       
       - name: Add .nojekyll file

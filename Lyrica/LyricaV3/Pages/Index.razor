@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject HttpClient HttpClient
+
+<EditForm Model="form" OnValidSubmit="HandleFormSubmit">
+    <div class="form-group">
+        <label class="col-form-label">Lyrics</label>
+        <InputTextArea class="form-control" style="height:300px;" @bind-Value="form.Lyrics"></InputTextArea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+
+</EditForm>
+@if (!string.IsNullOrEmpty(result))
+{
+    <p>@result</p>
+}
+
+@code{
+    LyricsForm form = new LyricsForm();
+    string result;
+    async void HandleFormSubmit()
+    {
+        var response = await HttpClient.PostAsJsonAsync("lyricsfilter", form);
+        if (response.IsSuccessStatusCode)
+        {
+            result = await response.Content.ReadAsStringAsync();
+            StateHasChanged();
+        }
+    }
+}
