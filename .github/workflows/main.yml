@@ -18,7 +18,7 @@ jobs:
         run: dotnet publish Lyrica/LyricaV3/LyricaV3.csproj -c Release -o release --nologo
       
       - name: Change base-tag in index.html from / to repo name
-        run: sed -i 's/<base href="\/" \/>/<base href="https:\/\/jarowoyele.github.io\/lyrica" \/>/g' release/wwwroot/index.html
+        run: sed -i 's/<base href="\/" \/>/<base href="https:\/\/jarowoyele.github.io\/lyrica\/" \/>/g' release/wwwroot/index.html
       
       
       - name: Add .nojekyll file
