@@ -1,30 +1,58 @@
 ﻿@page "/"
+@page "/index"
 @inject HttpClient HttpClient
+@using System.Text.Json
+@inject ILocalStorageService LocalStorage
 
-<EditForm Model="form" OnValidSubmit="HandleFormSubmit">
-    <div class="form-group">
-        <label class="col-form-label">Lyrics</label>
-        <InputTextArea class="form-control" style="height:300px;" @bind-Value="form.Lyrics"></InputTextArea>
+<div class="row align-content-center">
+    <div class="mx-auto">
+        <SearchLyrics OnSearchClicked="HandleSearch" />
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+</div>
 
 
-</EditForm>
-@if (!string.IsNullOrEmpty(result))
-{
-    <p>@result</p>
-}
+<div class="card-columns">
+    @foreach (var item in trackList)
+    {
+
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">@item.track.track_name</h5>
+                <p class="card-text"><strong>Artist:</strong>  @item.track.artist_name</p>
+                <p class="card-text"><strong>Album:</strong>  @item.track.album_name</p>
+                @if (item.track.has_lyrics == 1)
+                {
+                    <a href="lyricsfilter/@item.track.track_id" class="btn btn-secondary">Test Lyrics Filter</a>
+                }
+            </div>
+        </div>
+
+    }
+</div>
+
+
 
 @code{
-    LyricsForm form = new LyricsForm();
-    string result;
-    async void HandleFormSubmit()
+
+    List<Track_List> trackList = new List<Track_List>();
+
+    protected override async Task OnInitializedAsync()
     {
-        var response = await HttpClient.PostAsJsonAsync("lyricsfilter", form);
-        if (response.IsSuccessStatusCode)
+        if (await LocalStorage.ContainKeyAsync("lastsearchresult"))
         {
-            result = await response.Content.ReadAsStringAsync();
-            StateHasChanged();
+            trackList = await LocalStorage.GetItemAsync<List<Track_List>>("lastsearchresult");
         }
     }
+
+
+    public async Task HandleSearch(SearchForm form)
+    {
+        string url = $"https://sodiqyekeen-api.azurewebsites.net/api/MusixMatch/tracksearch?query={form.Query}";
+        var response = JsonSerializer.Deserialize<TrackSearchResponse>(await HttpClient.GetStringAsync(url));
+        trackList = response.message.body.track_list.ToList();
+        await LocalStorage.SetItemAsync("lastsearchresult", trackList);
+    }
+
+
+
 }

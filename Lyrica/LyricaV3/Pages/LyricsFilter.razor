@@ -1,0 +1,50 @@
+﻿@page "/lyricsfilter"
+@page "/lyricsfilter/{id}"
+@inject HttpClient HttpClient
+@using System.Text.Json 
+
+<EditForm Model="lyricsForm" OnValidSubmit="HandleFormSubmit" class="text-center">
+    <div class="form-group">
+        <label class="col-form-label">Paste lyrics here:</label>
+        <InputTextArea class="form-control" style="height:300px;" @bind-Value="lyricsForm.Lyrics"></InputTextArea>
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+
+
+</EditForm>
+@if (!string.IsNullOrEmpty(result))
+{
+    <p>@result</p>
+}
+
+@code{
+    [Parameter]
+    public string Id { get; set; }
+
+
+    LyricsForm lyricsForm = new LyricsForm();
+    string result;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            string url = $"https://sodiqyekeen-api.azurewebsites.net/api/MusixMatch/lyrics/{Id}";
+            var response = JsonSerializer.Deserialize<LyricsSearchResponse>(await HttpClient.GetStringAsync(url));
+            lyricsForm.Lyrics = response.message.body.lyrics.lyrics_body.Replace("******* This Lyrics is NOT for Commercial use *******", "");
+        }
+    }
+
+    async void HandleFormSubmit()
+    {
+        var response = await HttpClient.PostAsJsonAsync("http://localhost:5000/lyricsfilter", lyricsForm);
+        if (response.IsSuccessStatusCode)
+        {
+            result = await response.Content.ReadAsStringAsync();
+            StateHasChanged();
+        }
+    }
+
+   
+
+}

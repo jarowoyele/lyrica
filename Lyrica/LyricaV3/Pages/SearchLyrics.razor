@@ -1,0 +1,27 @@
+﻿@inject HttpClient client
+
+<EditForm Model="form" OnValidSubmit="HandleSearch">
+    <DataAnnotationsValidator />
+    <div class="form-row align-items-center">
+        <div class="col-auto">
+            <InputText class="form-control" placeholder="Enter an artist name or track title" @bind-Value="form.Query" />
+            <ValidationMessage For="(()=>form.Query)" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary mb-2">Search</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public EventCallback<SearchForm> OnSearchClicked { get; set; }
+
+    SearchForm form = new SearchForm();
+   
+    async void HandleSearch()
+    {
+        await OnSearchClicked.InvokeAsync(form);
+    }
+
+}
